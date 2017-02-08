@@ -98,3 +98,63 @@ System.out.println("a client connected");
 	public static void main(String[] args){
 		new Server().start();
 	}
+
+public class Client extends frame{
+	
+	Socket s = null;
+	DataOutputStream dos = null;
+	TextArea ta = new TextArea();
+	TextField tf = new TextField();
+	
+	public static void main(String[] args){
+		
+	}
+	
+	public void connect(){
+		s = new Socket("127.0.0.1",8888);
+		//建议以后直接变成方法，而不是直接写
+		dos = new DataOutputStream(s.getOutputStream());
+System.out.println("connect");
+	}
+	
+	//关闭资源方法
+	public void disconnect(){
+		dos.close();
+		s.close();
+	}
+	
+	public void launchframe(){
+		setsize(300,300);
+		setLocation(400,300);
+		add(ta,BorderLayout.SOUTH);
+		add(tf,BorderLayout.NORTH);
+		pack();
+		//监听器，设置关闭
+		this.addWindowsListener(new WindowAdapter(){
+			//override
+			public void windowClosing(WindowEvent arg0){
+				//在窗口关闭时候关闭资源
+				disconnect();
+				System.exit(0);
+			}
+		});
+		
+		tf.addActionListener(new TFListener());
+		setVisibile(true);
+		connect();
+	}
+	
+	//内部监听类
+	private class TFListener implements ActionListener{
+		//override
+		public void actionPerformed(ActionEvent e){
+			String str = tf.getText().trim();
+			ta.setText(s);
+			tf.setText("");
+			
+			dos.writeUTF(str);
+			dos.flush();
+			//dos.close();
+		}
+	}
+}
