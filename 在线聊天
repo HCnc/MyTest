@@ -1,0 +1,100 @@
+# MyTest
+JAVA实践以及一些课程设计
+public class Server{
+	
+	//使用client处理每一个客户端
+	class client implements Runnable{
+		private Socket s;
+		private DataInputStream dis;
+		private boolean bConnected = false;
+		
+		public client(Socket s){
+			this.s = s;
+			dis = new DataInputStream(s.getInputStream());
+			bConnected = true;
+		}
+		
+		public void run(){
+			try{
+				while(bConnected){
+				String str = dis.readUTF();
+			    System.out.println(str);
+				}
+			} catch(EOFException e){
+				System.out.println("Client closed");
+			} catch(IOException e){
+				e.printStackTrace();
+			} finally{//finally无论是否捕获异常都会执行：关闭程序
+			try{
+				if(dis != null) dis.close();
+			    if(s != null) s.close();
+				} catch(IOException e1){
+					e1.printStackTrace();
+					}
+		//发生任何异常则关闭Socket
+			}
+		}
+		
+	}
+	
+	public void start(){
+		boolean started = false;
+		ServerSocket ss = null;
+//		Socket s = null;
+//		DataInputStream dis = null;
+				
+		try{
+			ss = new ServerSocket(8888);
+		} catch(BindException e){
+			System.out.println("端口使用中...");
+			System.out.println("关闭程序，重新启动..");
+			System.exit(0);
+		} catch(IOException e){
+			e.printStackTrace();
+		}
+		
+		try{
+		started = true;
+		while(started){
+			
+//			boolean bConnected = false;
+
+			s = ss.accept();
+			client c = new client(s);
+System.out.println("a client connected");
+            new Thread(c).start();
+			
+//          bConnected = true;
+//          dis = new DataInputStream(s.getInputStream());
+			
+/*			while(bConnected){
+				String str = dis.readUTF();
+			    System.out.println(str);
+				}
+			
+			//dis.close();
+		}
+		} catch(EOFException e){
+			System.out.println("Client closed");
+		} catch(IOException e){
+			e.printStackTrace();
+		} finally{//finally无论是否捕获异常都会执行：关闭程序
+			try{
+				if(dis != null) dis.close();
+			    if(s != null) s.close();
+				} catch(IOException e1){
+					e1.printStackTrace();
+					}
+		//发生任何异常则关闭Socket
+			}*/
+			}
+			} catch(IOException e){
+				e.printStackTrace();
+			} finally{
+				ss.close();
+			}
+	}
+	
+	public static void main(String[] args){
+		new Server().start();
+	}
